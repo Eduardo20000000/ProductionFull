@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de sessión</title>
+
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background-color: #F8FAFC;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            background-color: #FFFFFF;
+            border: 4px solid #2563EB;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h4, h3 {
+            color: #475569;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            height: 40px;
+            border: 2px solid #2563EB;
+            border-radius: 6px;
+            padding: 0 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            height: 45px;
+            background-color: #2563EB;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:active {
+            background-color: #1E40AF;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container" id="tutorial">
+        <h4>
+            A un paso de vivir experiencias tecnologicas..<br>
+            Por favor inicia sessión para continuar.
+            <br>
+
+            <br>
+            Tu cuenta se guardará de forma segura en el navegador.
+        </h4>
+
+        <input id="username" placeholder="Nombre de usuario" type="text" />
+        <input id="password" placeholder="Contraseña" type="password" />
+        <input id="checkBox" placeholder="Crear cuenta" type="checkbox">Iniciar sessión</input>
+
+
+        <button id="btn-login">Enviar credenciales</button>
+    </div>
+<script src="./client.js"></script>
+</body>
+</html>
+
+
