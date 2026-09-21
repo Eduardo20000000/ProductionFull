@@ -1,3 +1,4 @@
+
 const API = "https://api.connectapp.dpdns.org/prod/v1/"
 var websocket = null;
 var savedHTML = []
@@ -6,6 +7,15 @@ var connectionCode = ""
 var lastX;
 var LastY
 var interval;
+const params = new URLSearchParams(window.location.search);
+
+const linkCode = params.get("linkCode");
+var modos = {
+    0: "default",
+    1: "teclado-mouse",
+    2: "gamer"
+}
+var current = 0;
 let obj = {
     0: "Conectando",
     1: "Conectado",
@@ -17,6 +27,50 @@ window.addEventListener('beforeunload', () => {
         websocket.close()
 })
 checkSession()
+let previusValue = ""
+async function loadMode(mode){
+
+    if(modos[mode] == null) return;
+    if(modos[mode] == "teclado-mouse"){
+        document.getElementById("microsoftEdge").hidden = true
+    document.getElementById("VisualStudioCode").hidden = true
+    document.getElementById("calc").hidden = true
+    document.getElementById("notepad").hidden = true
+    document.getElementById("teclado").hidden = false;
+    document.getElementById("teclado").addEventListener('input', (event) => {
+        let tecla = event.target.value;
+        
+     let packet = {
+      type: 10,
+      data : {
+        tecla,
+        connectionCode
+
+      }
+    }
+    
+       
+    websocket.send(JSON.stringify(packet))
+        event.target.value = "";
+
+    })
+    document.getElementById('teclado').addEventListener("beforeinput", (e) => {
+
+    if (e.inputType === "deleteContentBackward") {
+           let packet = {
+      type: 10,
+      data : {
+        tecla: "borrar",
+        connectionCode
+
+      }
+    }
+        websocket.send(JSON.stringify(packet))
+    }
+});
+    
+    }
+}
 async function checkSession(){
     console.log("Verificando sesión... (En base a datos guardados)")
     let username = localStorage.getItem("username")
@@ -72,6 +126,13 @@ function initWS(){
         }
         if(message.msgType === 4){
             console.log("Conexión al servidor exitosa.")
+            if(linkCode !== null){
+                  websocket.send(JSON.stringify({
+        type: 6,
+        data: {connectionCode: linkCode, username: localStorage.getItem("username"), token: localStorage.getItem("password")}
+    }))
+            connectionCode = linkCode
+            }
         }
         if(message.msgType === 6){
          
@@ -85,6 +146,7 @@ function initWS(){
              Por favor revise su PC para ver si la vinculación fue exitosa. <br>
         </h3>
     `
+    document.getElementById("contenedor").hidden = false;
     document.getElementById('tutorial').hidden = true
     document.getElementById('touchpad').hidden = false
     document.getElementById('buttonsArea').hidden = false
@@ -120,7 +182,21 @@ document.getElementById("btn-code").addEventListener("click", () => {
 
 
     })
+      document.getElementById('back').addEventListener("click", () => {
+        if(connectionCode == undefined || connectionCode == null) return;
+            current--;
+            if(current < 0) current = 2
+            loadMode(current)
+        })
+            document.getElementById('front').addEventListener("click", () => {
+                        if(connectionCode == undefined || connectionCode == null) return;
+
+            current++;
+            if(current > 2) current = 0
+            loadMode(current)
+        })
     function addListeners(){
+      
         document.getElementById('touchpad').addEventListener("touchstart", (event) => {
             const touch = event.touches[0]
             lastX = touch.clientX

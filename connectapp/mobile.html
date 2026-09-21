@@ -80,14 +80,25 @@
         <button id="btn-code">Enviar código</button>
     </div>
 
-    <div style="
+    
+    <textarea id="teclado" style="
     max-width:360px;
     margin:auto;
     padding:20px;
     background:#1F2937;
     border-radius:35px;
     box-shadow:0 15px 40px rgba(0,0,0,.35);
-">
+" hidden="true">
+</textarea>
+
+    <div id="contenedor" style="
+    max-width:360px;
+    margin:auto;
+    padding:20px;
+    background:#1F2937;
+    border-radius:35px;
+    box-shadow:0 15px 40px rgba(0,0,0,.35);
+" hidden="true">
 
         <div style="
         text-align:center;
@@ -223,6 +234,9 @@ font-size:clamp(16px,4vw,20px);
         </div>
 
     </div>
+    <button style="margin-top: 100%; width: 20%; height: 10%;" id="back"><</button>
+    <button style="margin-top: 100%; width: 20%; height: 10%;" id="front">></button>
+
         <script src="./scriptMobile.js"></script>
 
 </body>
