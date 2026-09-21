@@ -3,7 +3,7 @@ const userModel = require('./models/User');
 module.exports = {connectDB, createUser, loadUserData};
 async function connectDB(){
     try{
-        await mongoose.connect("mongodb+srv://whodark:QnbLY0LEvcPa2LA3@cluster0.a3l6vlt.mongodb.net/?appName=Cluster0")
+        await mongoose.connect("DATA-SENSIBLE")
         console.log("Connected to MongoDB.")
     }catch(e){
         console.log(e)//
