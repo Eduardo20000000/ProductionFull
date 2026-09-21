@@ -1,0 +1,3 @@
+El MasterServer será el encargado de administrar las ordenes Celular -> Computador
+A modo que El Celular y la laptop estaran conectados al servidor maestro, este obtendra
+ordenes del celu que seran ejecutadas en el Computador utilizando WebSockets a modo de comunicación
