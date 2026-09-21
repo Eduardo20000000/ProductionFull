@@ -2,6 +2,7 @@ require('colors')
 const WebSocket = require('ws')
 const {openProgramHandler} = require('./utils/openProgram');
 const handleMouseMovement = require('./utils/handleMouseMovement');
+const tecladoHandler = require('./utils/tecladoHandler');
 let linkCode;
 console.log(`
 ╔═════════════════════════════════════════════════════╗
@@ -52,9 +53,13 @@ websocket.onclose = (event) => {
             }, 2000)
         }
           if(message.msgType === 5){
+            var QRCode = require('qrcode')
+
+QRCode.toString(`https://connectapp.dpdns.org/mobile.html?linkCode=${message.data.code}`,{type:'terminal', small: true}, function (err, url) {
+  console.log(url)
+})
           console.log(`Código de vinculación recibido: ${message.data.code}`.green)
-          console.log(`Dispositivo listo para conexión...`.cyan)
-          linkCode = message.data.code
+          console.log(`Puedes introducir el código o escanear este QR...`.cyan)
         }
 
            if(message.msgType === 6){
@@ -66,6 +71,10 @@ websocket.onclose = (event) => {
         }
         if(message.msgType === 8){
             openProgramHandler(linkCode, websocket, message.data)
+            
+        }
+         if(message.msgType === 10){
+            tecladoHandler(websocket, message.data)
             
         }
  }
