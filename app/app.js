@@ -3,6 +3,8 @@ const WebSocket = require('ws')
 const {openProgramHandler} = require('./utils/openProgram');
 const handleMouseMovement = require('./utils/handleMouseMovement');
 const tecladoHandler = require('./utils/tecladoHandler');
+const { findPrograms } = require('./utils/findProgramsHandler');
+const PacketBuilder = require('./utils/packetBuilder');
 let linkCode;
 console.log(`
 ╔═════════════════════════════════════════════════════╗
@@ -54,7 +56,7 @@ websocket.onclose = (event) => {
         }
           if(message.msgType === 5){
             var QRCode = require('qrcode')
-
+            linkCode = message.data.code;
 QRCode.toString(`https://connectapp.dpdns.org/mobile.html?linkCode=${message.data.code}`,{type:'terminal', small: true}, function (err, url) {
   console.log(url)
 })
@@ -71,10 +73,21 @@ QRCode.toString(`https://connectapp.dpdns.org/mobile.html?linkCode=${message.dat
         }
         if(message.msgType === 8){
             openProgramHandler(linkCode, websocket, message.data)
-            
         }
          if(message.msgType === 10){
             tecladoHandler(websocket, message.data)
             
+        }
+        if(message.msgType === 11){
+            let programas = findPrograms();
+            
+                let packet = {
+                type: 11,
+                data: {
+                    programas,
+                    connectCode: linkCode
+                }
+            }
+            websocket.send(JSON.stringify(packet))
         }
  }

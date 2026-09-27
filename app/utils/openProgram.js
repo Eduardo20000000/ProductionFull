@@ -13,7 +13,8 @@ async function openProgramHandler(linkCode, ws, data, executePath) {
 
     function findProgramPath(name) {
       try {
-        if(specialApps[name]) {
+        if(specialApps[name] || name.endsWith(".lnk")) {
+          if(name.endsWith(".lnk")) return {isSpecial: true, name}
           return {isSpecial: true, name: specialApps[name]};
         }
     const result = execSync(`where.exe ${name}`, {
