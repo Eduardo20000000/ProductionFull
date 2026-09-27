@@ -8,6 +8,7 @@ module.exports = {
     "MOUSE_MOVE": 7,
     "OPEN_PROGRAM": 8,
     "MONITOR_TO_CLIENT": 9,
-    "TECLADO": 10
+    "TECLADO": 10,
+    "INDEXAR": 11
 
 }

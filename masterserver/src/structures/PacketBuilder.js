@@ -5,7 +5,7 @@ module.exports = class PacketBuilder {
         this.data = null
     }
     send(){
-if (this.msgType == null || this.data == null) return
+if (this.msgType == null || this.data == null) return console.log("aca terminó")
         this.ws.send(JSON.stringify({msgType: this.msgType, data: this.data}))
     }
     buildPacket(msgType, data){

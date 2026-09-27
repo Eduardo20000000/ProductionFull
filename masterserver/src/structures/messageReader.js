@@ -105,5 +105,23 @@ module.exports = class PacketReader {
             packet.buildPacket(msgType.MONITOR_TO_CLIENT, {message: this.msg.data.message})
             packet.send()
         }
+          if(type === msgType.INDEXAR){
+            console.log(this.msg.data)
+            if(!this.msg.data.programas){
+            let code = this.msg.data.connectionCode
+            if(!code) return;
+            let link = LINKS.find(link => link.code === code && link.taken === true)
+            let packet = new PacketBuilder(link.ws)
+            packet.buildPacket(msgType.INDEXAR, {message: "hola mundo"})
+            packet.send()
+            }else {//HABLAMOS DE MONITOR AL CELUUUU 
+                let link = LINKS.find(c => c.taken && c.code === this.msg.data.connectCode)
+                if(!link) return;
+                let packet = new PacketBuilder(link.mobile)
+                packet.buildPacket(msgType.INDEXAR, {programas: this.msg.data.programas})
+                packet.send();
+
+            }
+        }
     }
 }
