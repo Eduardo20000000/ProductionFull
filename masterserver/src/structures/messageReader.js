@@ -1,6 +1,7 @@
 const PacketBuilder = require("./PacketBuilder")
         const msgType = require("./msgType")
 const LINKS = require("../server")
+const { linkSync } = require("fs")
 function randomCode(){
     let abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     let code = ''
@@ -59,7 +60,7 @@ module.exports = class PacketReader {
             let connectCode = LINKS.find(link => link.code === this.msg.data.connectionCode && link.taken === true)
             if(!connectCode){
                 let packet = new PacketBuilder(this.ws)
-                packet.buildPacket(msgType.MESSAGE, {message: "Invalid connection code."})
+                packet.buildPacket(msgType.MESSAGE, {message: "Invalid connection code.", color: "error"})
                 packet.send()
                 return this.ws.close()
             }
@@ -73,7 +74,7 @@ module.exports = class PacketReader {
             let connectCode = LINKS.find(link => link.code === this.msg.data.connectionCode && link.taken === true)
             if(!connectCode){
                 let packet = new PacketBuilder(this.ws)
-                packet.buildPacket(msgType.MESSAGE, {message: "Invalid connection code."})
+                packet.buildPacket(msgType.MESSAGE, {message: "Invalid connection code.", color: "error"})
                 packet.send()
                 return this.ws.close()
             }
@@ -87,7 +88,7 @@ module.exports = class PacketReader {
             let connectCode = LINKS.find(link => link.code === this.msg.data.connectionCode && link.taken === true)
             if(!connectCode){
                 let packet = new PacketBuilder(this.ws)
-                packet.buildPacket(msgType.MESSAGE, {message: "Invalid connection code."})
+                packet.buildPacket(msgType.MESSAGE, {message: "Invalid connection code.", color: "error"})
                 packet.send()
                 return this.ws.close()
             }
@@ -99,14 +100,13 @@ module.exports = class PacketReader {
         }
         if(type === msgType.MONITOR_TO_CLIENT){
             let code = this.msg.data.linkCode
-            if(!code) return;
+            if(!code) return 
             let link = LINKS.find(link => link.code === code && link.taken === true)
             let packet = new PacketBuilder(link.mobile)
-            packet.buildPacket(msgType.MONITOR_TO_CLIENT, {message: this.msg.data.message})
+            packet.buildPacket(msgType.MONITOR_TO_CLIENT, {message: this.msg.data.message, color: this.msg.data.color})
             packet.send()
         }
           if(type === msgType.INDEXAR){
-            console.log(this.msg.data)
             if(!this.msg.data.programas){
             let code = this.msg.data.connectionCode
             if(!code) return;
@@ -122,6 +122,13 @@ module.exports = class PacketReader {
                 packet.send();
 
             }
+        }
+        if(type === msgType.UPLOAD){
+            let link = LINKS.find((x) => x.code === this.msg.data.connectionCode && x.taken)
+            if(!link) return 
+            let packet = new PacketBuilder(link.ws)
+            packet.buildPacket(msgType.UPLOAD, this.msg.data)
+            packet.send()
         }
     }
 }

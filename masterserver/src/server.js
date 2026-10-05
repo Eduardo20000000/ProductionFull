@@ -24,34 +24,36 @@ server.on('connection', (socket) => {
             socket.close(4000, "Invalid message format.")
         }
     })
-    socket.on('close', () => {
+    socket.on('close', (code, reason) => {
         if(LINKS.find(link => link.ws == socket)){
             if(!LINKS.find(link => link.ws == socket).mobile) return
             let packet = new PacketBuilder(LINKS.find(link => link.ws == socket).mobile)
             packet.buildPacket(msgType.MESSAGE, {message: "El computador se ha desconectado..."})
             packet.send()
             LINKS.splice(LINKS.findIndex(link => link.ws == socket), 1)
-            console.log("sent alert to mobile")
         }
         let celu = LINKS.find(link => link.mobile == socket)
          if(celu){
             let packet = new PacketBuilder(celu.ws)
-            packet.buildPacket(msgType.LINK_DEVICE, {message: `El celular de ${celu.mobile.username} se ha desconectado del seridor. Vínculación eliminada`})
+            packet.buildPacket(msgType.LINK_DEVICE, {message: `El celular de ${celu.mobile.username} se ha desconectado del seridor.\nPuedes volver a reconectarte leyendo el QR o intruciendo el código de vinculación`})
             packet.send()
-            LINKS.splice(LINKS.findIndex(link => link.mobile == socket), 1)
-            console.log("Sent disconnect packet to pc")
+            LINKS[LINKS.findIndex(link => link.mobile == socket)].taken = false
+            LINKS[LINKS.findIndex(link => link.mobile == socket)].mobile = null        
+
         }
 
         
     })
     socket.on('pong', () => {
         socket.isAlive = true
+    
     })
 })
-const interval = setInterval(() => {
+setInterval(() => {
     server.clients.forEach((ws) => {
         if (ws.isAlive === false) {
-            return ws.terminate();
+             ws.terminate();
+            return
         }
 
         ws.isAlive = false;

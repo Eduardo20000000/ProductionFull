@@ -7,10 +7,10 @@ module.exports = class ConnectionLink {
         this.message = message
     }
     async linkDevice(){
-        let ws = LINKS.find(link => link.code === this.message.connectionCode && link.taken === false)
+        let ws = LINKS.find(link => link.code === this.message.connectionCode && link.taken === false && link.ws.readyState === 1)
         if(!ws) {
             let packet = new PacketBuilder(this.ws)
-            packet.buildPacket(msgType.MESSAGE, {message: "El código proporcionado no es válido."})
+            packet.buildPacket(msgType.MESSAGE, {message: "El código proporcionado no es válido o el dispositivo a controlar está desconectado."})
             packet.send()
             return
         }

@@ -9,6 +9,7 @@ module.exports = {
     "OPEN_PROGRAM": 8,
     "MONITOR_TO_CLIENT": 9,
     "TECLADO": 10,
-    "INDEXAR": 11
+    "INDEXAR": 11,
+    "UPLOAD": 12
 
 }
