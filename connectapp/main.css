@@ -1,0 +1,115 @@
+/* =========================
+   CONNECTAPP NOTIFICATIONS
+   ========================= */
+
+#popup-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    width: min(360px, calc(100vw - 40px));
+}
+
+.popup {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 14px 16px;
+
+    background: #FFFFFF;
+    border-radius: 10px;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+
+    border-left: 4px solid #2563EB;
+
+    font-family: Arial, sans-serif;
+    color: #334155;
+
+    animation: popupIn 0.25s ease;
+}
+
+.popup-icon {
+    width: 28px;
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    font-size: 15px;
+    font-weight: bold;
+
+    flex-shrink: 0;
+}
+
+.popup-message {
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* SUCCESS */
+
+.popup.success {
+    border-left-color: #10B981;
+}
+
+.popup.success .popup-icon {
+    background: #D1FAE5;
+    color: #059669;
+}
+
+/* ERROR */
+
+.popup.error {
+    border-left-color: #EF4444;
+}
+
+.popup.error .popup-icon {
+    background: #FEE2E2;
+    color: #DC2626;
+}
+
+/* NOTIFICATION */
+
+.popup.notification {
+    border-left-color: #2563EB;
+}
+
+.popup.notification .popup-icon {
+    background: #DBEAFE;
+    color: #2563EB;
+}
+
+@keyframes popupIn {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes popupOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+}

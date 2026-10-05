@@ -79,7 +79,51 @@
 
         <button id="btn-login">Enviar credenciales</button>
     </div>
+    
+    <script>
+class popup {
+
+    constructor(msg, duracion = 3000, tipo = "notification") {
+
+        const container = document.getElementById("popup-container");
+
+        const notification = document.createElement("div");
+
+        notification.className = `popup ${tipo}`;
+
+        let icon = "i";
+
+        if (tipo === "success") {
+            icon = "✓";
+        }
+
+        if (tipo === "error") {
+            icon = "!";
+        }
+
+        notification.innerHTML = `
+            <div class="popup-icon">${icon}</div>
+            <div class="popup-message">${msg}</div>
+        `;
+
+        container.appendChild(notification);
+
+        setTimeout(() => {
+
+            notification.style.animation = "popupOut 0.25s ease";
+
+            setTimeout(() => {
+                notification.remove();
+            }, 250);
+
+        }, duracion);
+    }
+}
+</script>
 <script src="./client.js"></script>
+    <link rel="stylesheet" href="./main.css">
+
+
 </body>
 </html>
 

@@ -9,11 +9,12 @@ var LastY
 var interval;
 const params = new URLSearchParams(window.location.search);
 
-const linkCode = params.get("linkCode");
+const linkCode = params.get("linkCode") || localStorage.getItem("linkCode");
+let añadidos = [];
 var modos = {
     0: "default",
     1: "teclado-mouse",
-    2: "gamer"
+    2: "indexado-programas"
 }
 var current = 0;
 let obj = {
@@ -22,16 +23,116 @@ let obj = {
     2: "Cerrando",
     3: "Cerrado"
 }
-window.addEventListener('beforeunload', () => {
-    if(!websocket && websocket.readyState == 1)
-        websocket.close()
-})
+var transferId = -1
+function arrayBufferToBase64(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = "";
+
+    for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+
+    return btoa(binary);
+}
+
+async function sendFile(file, aumentar) {
+    if(!connectionCode) {
+        new popup("No hay código de vinculación existente.", 5000, "error");
+        return
+    }
+    if(websocket && websocket.readyState !== 1){
+      new popup("Se cerró la conexión, busca tu archivo más rápido.", 5000, "error")
+        return;
+    }
+
+    const CHUNK_SIZE = 64 * 1024;
+
+    if(aumentar) transferId++;
+
+
+
+    websocket.send(JSON.stringify({
+        type: 12,
+        data: {
+        transferID: `${transferId}-${connectionCode}`,
+        type: "file-start",
+        connectionCode,
+        name: file.name,
+        size: file.size,
+        mimeType: file.type
+        }
+    }));
+
+    for (
+        let offset = 0;
+        offset < file.size;
+        offset += CHUNK_SIZE
+    ) {
+
+        const chunk = file.slice(
+            offset,
+            Math.min(offset + CHUNK_SIZE, file.size)
+        );
+  const buffer = await chunk.arrayBuffer();
+const base64 = arrayBufferToBase64(buffer);
+
+        websocket.send(JSON.stringify({type: 12, data: {
+            chunk: base64,
+            transferID: `${transferId}-${connectionCode}`,
+            connectionCode,
+
+        }
+        }));
+
+        console.log(
+            `${Math.min(offset + CHUNK_SIZE, file.size)}
+             / ${file.size}`
+        );
+
+        // Dar oportunidad al navegador de procesar otros eventos
+        await new Promise(resolve => setTimeout(resolve, 0));
+    }
+
+    websocket.send(JSON.stringify({
+        type: 12,
+        data: {
+        type: "file-end",
+            transferID: `${transferId}-${connectionCode}`,
+                    connectionCode
+
+        
+    }
+    }));
+}
 checkSession()
 let previusValue = ""
 async function loadMode(mode){
 
     if(modos[mode] == null) return;
+    new popup(`¡Cambiado al modo ${modos[mode]}!`, 6000, "success")
+           if(añadidos.length && modos[mode] !== "indexado-programas"){
+            añadidos.forEach((añadido) => {
+                añadido.removeEventListener('click', null)
+                              añadido.hidden = true
+
+              añadido = null
+            })
+            añadidos = []
+        }
+        if(document.getElementById('teclado') && modos[mode] !== "teclado"){
+         document.getElementById('teclado').removeEventListener('input', null)
+        document.getElementById('teclado').removeEventListener('beforeinput', null)
+        }
+
+    if(modos[mode] == 'default'){
+    document.getElementById("microsoftEdge").hidden = false
+    document.getElementById("VisualStudioCode").hidden = false
+    document.getElementById("calc").hidden = false
+    document.getElementById("notepad").hidden = false
+    document.getElementById("teclado").hidden = true;
+    }
     if(modos[mode] == "teclado-mouse"){
+        
         document.getElementById("microsoftEdge").hidden = true
     document.getElementById("VisualStudioCode").hidden = true
     document.getElementById("calc").hidden = true
@@ -70,6 +171,25 @@ async function loadMode(mode){
 });
     
     }
+    console.log(modos[mode] == "indexado-programas")
+    console.log(modos[mode])
+    if(modos[mode] == "indexado-programas"){
+//  alert("Cargado")
+    document.getElementById("teclado").hidden = true;
+    document.getElementById("microsoftEdge").hidden = true
+    document.getElementById("VisualStudioCode").hidden = true
+    document.getElementById("calc").hidden = true
+    document.getElementById("notepad").hidden = true
+    
+    let packet = {
+        type: 11,//search
+        data: {
+            connectionCode
+        }
+    }
+        websocket.send(JSON.stringify(packet))
+
+    }
 }
 async function checkSession(){
     console.log("Verificando sesión... (En base a datos guardados)")
@@ -96,7 +216,7 @@ async function checkSession(){
 function initWS(){
      websocket = new WebSocket("wss://masterserver.connectapp.dpdns.org:443")
      websocket.onclose = () => {
-        alert("Conexión cerrada...")
+        new popup(`Conexión cerrada`, 5000, "error")
         location.reload()
      }
     websocket.onopen = () => {
@@ -120,8 +240,12 @@ function initWS(){
     websocket.onmessage = (event) => {
         let message = JSON.parse(event.data)
 
+        if(message.msgType === 9){
+            new popup(`Computador: ` + message.data.message, 5000, message.data.color)
+        }
+
         if(message.msgType === 3){
-            alert(message.data.message)
+            new popup(message.data.message, 5000, message.data.color)
             if(message.data.message == "El computador se ha desconectado...") location.reload()
         }
         if(message.msgType === 4){
@@ -136,7 +260,7 @@ function initWS(){
         }
         if(message.msgType === 6){
          
-                alert("Conectado a la instancia con el monitor.")
+                new popup("Conectado a la instancia con el monitor.", 5000, "success")
                 //no mas drama, ya esta autenticado el usuario!
                 document.getElementById("mobile-info").innerHTML = `
     <h3 id="mobile-info" style="color: green;">
@@ -156,14 +280,41 @@ function initWS(){
     document.getElementById("calc").hidden = false
     document.getElementById("notepad").hidden = false
     addListeners()
-  }
 
+  }
+ if(message.msgType === 11){
+    console.log("Programas del computador obtenidos..")
+    let programas = message.data.programas
+    console.log(message.data.programas)
+for (const programa of programas) {
+
+    const button = document.createElement("button");
+
+    button.textContent = programa.name;
+    
+    button.addEventListener("click", () => {
+
+        let packet = {
+            type: 8,
+            data: {
+                programName: programa.pathName,
+                connectionCode
+            }
+        };
+
+        websocket.send(JSON.stringify(packet));
+    });
+
+    document.getElementById("contenedor").appendChild(button);
+    añadidos.push(button)
+}
+  }
     }
 }
 document.getElementById("btn-code").addEventListener("click", () => {
     let code = document.getElementById("code").value
-    if(websocket !== null && websocket.readyState !== 1) alert("El servidor no esta disponible.")
-    if(!code) return alert("Por favor ingresa un código de vinculación.")
+    if(websocket !== null && websocket.readyState !== 1) new popup("El servidor no esta disponible.", 5000, "error")
+    if(!code) return new popup("Por favor ingresa un código de vinculación.", 5000, "error")
 
                         document.getElementById("mobile-info").innerHTML = `
     <h3 id="mobile-info">
@@ -197,6 +348,14 @@ document.getElementById("btn-code").addEventListener("click", () => {
         })
     function addListeners(){
       
+        const input = document.getElementById("fileInput");
+
+input.addEventListener("change", () => {
+
+    const file = input.files[0];
+    sendFile(file, true)
+});
+
         document.getElementById('touchpad').addEventListener("touchstart", (event) => {
             const touch = event.touches[0]
             lastX = touch.clientX

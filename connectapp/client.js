@@ -3,7 +3,10 @@ const API = "https://api.connectapp.dpdns.org/"
 var loggedIn = localStorage.getItem('username') && localStorage.getItem('password')
 var deviceType = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 1 : 0 // 0: PC | 1: Mobile
 localStorage.setItem('deviceType', deviceType)
+const params = new URLSearchParams(window.location.search);
 
+const linkCode = params.get("linkCode")
+if(linkCode) localStorage.setItem("linkCode", linkCode)
 
 if(!loggedIn && deviceType === 1 && !window.location.href.includes("login.html")){
     console.log("Cuenta es necesaria para conectar al servidor.")
@@ -20,23 +23,23 @@ document.getElementById("btn-login")?.addEventListener("click", async () => {
     let username = document.getElementById("username").value
     let password = document.getElementById("password").value
     let iniciarSession = document.getElementById("checkBox").checked
-    if(!username || !password) return alert("Por favor completa todos los campos.")
+    if(!username || !password) return new popup("Por favor completa todos los campos.", 5000, "error")
     if(iniciarSession){
         let response = await fetch(API+"prod/v1/validate-session?username=" + encodeURIComponent(username) + "&token=" + encodeURIComponent(password))
         let data = await response.json()
-        if(!data.success) return alert("Error al iniciar sesión: " + data.message)
+        if(!data.success) return new popup("Error al iniciar sesión: " + data.message, 5000, "error")
             localStorage.setItem("username", username)
             localStorage.setItem("password", password)
-        alert("Se ha iniciado sesión.")
+        new popup("Se ha iniciado sesión.", 5000, "success")
         location.href = "./mobile.html"
 
     }else {
         let response = await fetch(API+"prod/v1/createUser?user=" + encodeURIComponent(username) + "&password=" + encodeURIComponent(password))
         let data = await response.json()
-        if(!data.success) return alert("Error al crear la cuenta: " + data.message)
+        if(!data.success) return new popup("Error al crear la cuenta: " + data.message, 5000, "error")
             localStorage.setItem("username", username)
             localStorage.setItem("password", password)
         location.href = "./mobile.html"
-        alert("Se ha creado tu cuenta exitosamente.")
+        new popup("Se ha creado tu cuenta exitosamente.", 5000, "success")
     }
 })

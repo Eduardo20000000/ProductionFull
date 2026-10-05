@@ -60,6 +60,7 @@
             background-color: #1E40AF;
         }
     </style>
+    <link rel="stylesheet" href="./main.css">
 </head>
 
 <body>
@@ -126,8 +127,9 @@ min-height:180px;
         box-sizing:border-box;
         box-shadow:inset 0 2px 8px rgba(0,0,0,.2);
     ">
-
+    <input type="file" id="fileInput">
         </div>
+        
 
         <div style="
         display:flex;
@@ -237,8 +239,52 @@ font-size:clamp(16px,4vw,20px);
     <button style="margin-top: 100%; width: 20%; height: 10%;" id="back"><</button>
     <button style="margin-top: 100%; width: 20%; height: 10%;" id="front">></button>
 
+    <script>
+class popup {
+
+    constructor(msg, duracion = 3000, tipo = "notification") {
+
+        const container = document.getElementById("popup-container");
+
+        const notification = document.createElement("div");
+
+        notification.className = `popup ${tipo}`;
+
+        let icon = "i";
+
+        if (tipo === "success") {
+            icon = "✓";
+        }
+
+        if (tipo === "error") {
+            icon = "!";
+        }
+
+        notification.innerHTML = `
+            <div class="popup-icon">${icon}</div>
+            <div class="popup-message">${msg}</div>
+        `;
+
+        container.appendChild(notification);
+
+        setTimeout(() => {
+
+            notification.style.animation = "popupOut 0.25s ease";
+
+            setTimeout(() => {
+                notification.remove();
+            }, 250);
+
+        }, duracion);
+    }
+}
+</script>
+
         <script src="./scriptMobile.js"></script>
 
 </body>
+
+<div id="popup-container"></div>
+<link rel="stylesheet"></link>
 
 </html>
